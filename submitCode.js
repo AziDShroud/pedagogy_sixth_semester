@@ -1,20 +1,27 @@
 function submitCode() {
-    console.clear();
+
+    
    const code = document.getElementById("codeArea").value
     .toUpperCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .trim();
+ let normalizedStudent = code
+        .toUpperCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
 
     let feedback = [];
-
+    let currentProblemType = 0;
     let forCount = (code.match(/ΓΙΑ/g) || []).length;
     let whileCount = (code.match(/ΟΣΟ/g) || []).length;
     let untilCount = (code.match(/ΜΕΧΡΙΣ_ΟΤΟΥ/g) || []).length;
     
 
     let hasStart = code.includes("ΑΡΧΗ");
-    let hasEnd = code.includes("ΤΕΛΟΣ_ΠΡΟΓΡΑΜΜΑΤΟΣ");
+    let hasEnd = code.includes("ΤΕΛΟΣ_ΠΡΟΓΡΑΜΜΑΤΟΣ") || code.includes("ΤΕΛΟΣ ΠΡΟΓΡΑΜΜΑΤΟΣ");
 
     
     if (!(hasStart && hasEnd)) {
@@ -67,7 +74,9 @@ function submitCode() {
             text.includes("δεν") ||
             text.includes("λειπει") || 
             text.includes("λειπουν")||
-            text.includes("ελλιπης")
+            text.includes("ελλιπης")||
+            text.includes("πρεπει")||
+            text.includes("χρειάζονται")
         );
     });
 
@@ -76,55 +85,154 @@ function submitCode() {
     }
 
 
+    // =========================================
+    // Structural checks based on expected solution
+    // =========================================
+
+    if (currentProblemType === 0) {
+
+        if (!normalizedStudent.includes("ΟΣΟ")) {
+            feedback.push("Η λύση πρέπει να χρησιμοποιεί επαναλήψεις ΟΣΟ.");
+        }
+
+        let whileCount = (normalizedStudent.match(/ΟΣΟ/g) || []).length;
+
+        if (whileCount < 2) {
+            feedback.push("Χρειάζονται δύο εμφωλευμένες επαναλήψεις ΟΣΟ.");
+        }
+
+        if (!normalizedStudent.includes("ΓΡΑΨΕ")) {
+            feedback.push("Λείπει η εμφάνιση αριθμών (ΓΡΑΨΕ).");
+        }
+    }
+
+
+    else if (currentProblemType === 1) {
+
+        if (!normalizedStudent.includes("ΜΕΧΡΙΣ_ΟΤΟΥ")) {
+            feedback.push("Η λύση πρέπει να χρησιμοποιεί ΜΕΧΡΙΣ_ΟΤΟΥ.");
+        }
+
+        let untilCount = (normalizedStudent.match(/ΜΕΧΡΙΣ_ΟΤΟΥ/g) || []).length;
+
+        if (untilCount < 2) {
+            feedback.push("Χρειάζονται δύο εμφωλευμένες επαναλήψεις ΜΕΧΡΙΣ_ΟΤΟΥ.");
+            }
+        }
+    
+
+
 
  // --- Output as spoilers ---
     const outputArea = document.getElementById("outputArea");
-    outputArea.innerHTML = "<b>Ανατροφοδότηση (πάτησε για εμφάνιση):</b><br><br>";
+    outputArea.innerHTML = "<b>Ανατροφοδότηση για τον κώδικα σου:</b><br>";
 
     feedback.forEach(item => {
-    let div = document.createElement("div");
-    div.textContent = "• " + item;
-    outputArea.appendChild(div);
-    if (item.toLowerCase().includes("λείπει") || item.toLowerCase().includes("λειπουν") || item.toLowerCase().includes("δεν")) {
-        div.style.color = "red";
-    } else {
-        div.style.color = "green";
-    }
+        let div = document.createElement("div");
+        div.textContent = "• " + item;
+        outputArea.appendChild(div);
+        let text = item
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+        if (text.includes("λείπει") || text.includes("λειπουν") || text.includes("χρειαζονται")|| text.includes("πρεπει") ) {
+            div.style.color = "red";
+        } else {
+            div.style.color = "green";
+        }
     });
 
 }
 
 
 
-function syntaxcheckerforForloop(code, feedback, forCount){
+function syntaxcheckerforForloop(code, feedback, forCount) {
 
-    let forLines = code.match(/ΓΙΑ[^\n\r]*/g) || [];
-    let closeCount = (code.match(/ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ/g) || []).length;
+    let forLines = code.match(/ΓΙΑ[^\n\r]*/gi) || [];
+
+    let closeCount =
+        (code.match(/ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ/gi) || []).length;
 
     let wrongLines = 0;
 
     forLines.forEach(line => {
 
-        let parts = line.trim().split(/\s+/);
+        let cleanLine = line
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toUpperCase()
+            .trim();
 
-        if (parts.length < 6) {
-            wrongLines++;
-            return;
+        let parts = cleanLine.split(/\s+/);
+
+        // Example:
+        // ΓΙΑ Ι ΑΠΟ 1 ΜΕΧΡΙ 5
+
+        let hasVariable =
+            parts.length > 1 &&
+            parts[1] !== "ΑΠΟ";
+
+        let apoIndex =
+            parts.indexOf("ΑΠΟ");
+
+        let mexriIndex =
+            parts.indexOf("ΜΕΧΡΙ");
+
+        let hasAPO = apoIndex !== -1;
+        let hasMEXRI = mexriIndex !== -1;
+
+        let hasStartNumber =
+            hasAPO &&
+            apoIndex + 1 < parts.length &&
+            !isNaN(parseInt(parts[apoIndex + 1]));
+
+        let hasEndNumber =
+            hasMEXRI &&
+            mexriIndex + 1 < parts.length &&
+            !isNaN(parseInt(parts[mexriIndex + 1]));
+
+        let lineHasError = false;
+
+        if (!hasVariable) {
+            feedback.push("Σε μία δομή ΓΙΑ λείπει μεταβλητή μετά το ΓΙΑ.");
+            lineHasError = true;
         }
-     });
+
+        if (!hasAPO) {
+            feedback.push("Σε μία δομή ΓΙΑ λείπει το ΑΠΟ.");
+            lineHasError = true;
+        }
+
+        if (!hasStartNumber) {
+            feedback.push("Σε μία δομή ΓΙΑ λείπει αριθμός μετά το ΑΠΟ.");
+            lineHasError = true;
+        }
+
+        if (!hasMEXRI) {
+            feedback.push("Σε μία δομή ΓΙΑ λείπει το ΜΕΧΡΙ.");
+            lineHasError = true;
+        }
+
+        if (!hasEndNumber) {
+            feedback.push("Σε μία δομή ΓΙΑ λείπει αριθμός μετά το ΜΕΧΡΙ.");
+            lineHasError = true;
+        }
+
+        if (lineHasError) {
+            wrongLines++;
+        }
+
+    });
 
     if (closeCount < forCount) {
         wrongLines++;
         feedback.push("Λείπουν κάποια ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ.");
     }
 
-    if  (wrongLines==1){
-         feedback.push("Ελλιπής σύνταξη σε μία δομή ΓΙΑ.");
-    }else if(wrongLines>1){
-         feedback.push("Ελλιπής σύνταξη στις δομές ΓΙΑ.");
+    if (wrongLines === 0) {
+        feedback.push("Όλες οι δομές ΓΙΑ έχουν σωστή μορφή.");
     }
 }
-
     
 
 function syntaxforWhileloop(code, feedback){
@@ -185,5 +293,4 @@ function syntaxforUntilloop(code, feedback){
          feedback.push("Ελλιπής σύνταξη στις δομές Μεχρις_Οτου.");
     }
 }
-
 
