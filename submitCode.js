@@ -1,6 +1,5 @@
 function submitCode() {
-
-    
+   
    const code = document.getElementById("codeArea").value
     .toUpperCase()
     .normalize("NFD")
@@ -85,10 +84,6 @@ function submitCode() {
     }
 
 
-    // =========================================
-    // Structural checks based on expected solution
-    // =========================================
-
     if (currentProblemType === 0) {
 
         if (!normalizedStudent.includes("ΟΣΟ")) {
@@ -135,13 +130,13 @@ function submitCode() {
             .toLowerCase()
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "");
-        if (text.includes("λείπει") || text.includes("λειπουν") || text.includes("χρειαζονται")|| text.includes("πρεπει") ) {
+        if (text.includes("λειπει") || text.includes("λειπουν") || text.includes("χρειαζονται")|| text.includes("πρεπει") ) {
             div.style.color = "red";
         } else {
             div.style.color = "green";
         }
     });
-
+   
 }
 
 
@@ -293,4 +288,3 @@ function syntaxforUntilloop(code, feedback){
          feedback.push("Ελλιπής σύνταξη στις δομές Μεχρις_Οτου.");
     }
 }
-

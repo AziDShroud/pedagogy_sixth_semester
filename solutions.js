@@ -1,4 +1,4 @@
-const solutions = {
+window.solutions = {
     case0: function(A, B, C, D) {
         currentProblemType = 0;
         currentValues = {A, B, C, D};
