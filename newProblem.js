@@ -34,13 +34,8 @@ function newProblem() {
     G = Math.max(F,G);
     F = Math.min(F,G);
     let Y = randomNum(0,G-F);
-   
-   
 
-   
-
-   
-
+    
     switch(type) {
 
       

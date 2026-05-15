@@ -85,7 +85,7 @@ function submitCode() {
     let div = document.createElement("div");
     div.textContent = "• " + item;
     outputArea.appendChild(div);
-    if (item.toLowerCase().includes("λείπει") || item.toLowerCase().includes("δεν")) {
+    if (item.toLowerCase().includes("λείπει") || item.toLowerCase().includes("λειπουν") || item.toLowerCase().includes("δεν")) {
         div.style.color = "red";
     } else {
         div.style.color = "green";
