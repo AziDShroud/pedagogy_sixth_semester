@@ -4,7 +4,7 @@ function randomNum(min = -1000, max = 1000) {
 
 function newProblem() {
 
-    let type = Math.floor(Math.random() * 2); // only 2 exercises now
+    let type = Math.floor(Math.random() * 3); 
 
     let problemText = "";
     let hints = [];
@@ -26,7 +26,19 @@ function newProblem() {
     // --- Random counts for until ---
     let N = randomNum(1, 1000);
     let M = randomNum(1, 1000);
-    let X = min(N,M);
+    let X = Math.min(N,M);
+    let Z = Math.max(N,M);
+   
+    let F = Math.min(randomNum(X+1,Z-1));
+    let G = Math.max(randomNum(X+1,Z-1));
+   
+    let Y = randomNum(1,G-F);
+   
+   
+
+   
+
+   
 
     switch(type) {
 
@@ -63,16 +75,14 @@ function newProblem() {
 
         case 2:
             problemText = `Να αναπτύξετε αλγόριθμο που:
-                Για κάθε αριθμό από το ${M} έως το ${N}
-                υπολογίζει και εμφανίζει το άθροισμα των αριθμών από το ${X} έως αυτόν τον αριθμό.
-
-                Χρησιμοποιώντας εμφωλευμένες επαναλήψεις ΓΙΑ.`;
+                Για κάθε αριθμό από το από το ${X} εώς το ${Z}
+                υπολογίζει και εμφανίζει το αθροισμα των αριθμών από το ${F} εώς το ${G} κατά ${Y}.`;
 
             hints = [
                 "Χρησιμοποίησε δύο εμφωλευμένες επαναλήψεις ΓΙΑ.",
-                "Η εξωτερική επανάληψη πηγαίνει από το 1 έως το " + N + ".",
-                "Σε κάθε επανάληψη, υπολόγισε το άθροισμα από το 1 έως τον τρέχοντα αριθμό."
-];
+                "Η εξωτερική επανάληψη πηγαίνει από το " + X + " έως το " + Z + ".",
+                "Στην εσωτερική επανάληψη, υπολόγισε το άθροισμα από το " + F + " έως το " + G + " αυξάνοντας κατά " + Y + "."
+            ];
     }
 
     // --- Display problem ---
