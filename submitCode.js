@@ -1,11 +1,12 @@
 function submitCode() {
-   
-   const code = document.getElementById("codeArea").value
-    .toUpperCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim();
- let normalizedStudent = code
+
+    const code = document.getElementById("codeArea").value
+        .toUpperCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim();
+
+    let normalizedStudent = code
         .toUpperCase()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
@@ -13,108 +14,164 @@ function submitCode() {
         .trim();
 
     let feedback = [];
-    let currentProblemType = 0;
-    let forCount = (code.match(/ΓΙΑ/g) || []).length;
-    let whileCount = (code.match(/ΟΣΟ/g) || []).length;
-    let untilCount = (code.match(/ΜΕΧΡΙΣ_ΟΤΟΥ/g) || []).length;
-    
 
-    let hasStart = code.includes("ΑΡΧΗ");
-    let hasEnd = code.includes("ΤΕΛΟΣ_ΠΡΟΓΡΑΜΜΑΤΟΣ") || code.includes("ΤΕΛΟΣ ΠΡΟΓΡΑΜΜΑΤΟΣ");
 
-    
+    let currentSolution =
+        solutions["case" + window.currentProblemType];
+
+    let forCount =
+        (code.match(/ΓΙΑ/g) || []).length;
+
+    let whileCount =
+        (code.match(/ΟΣΟ/g) || []).length;
+
+    let untilCount =
+        (code.match(/ΜΕΧΡΙΣ_ΟΤΟΥ/g) || []).length;
+
+
+    let hasStart =
+        normalizedStudent.includes("ΑΡΧΗ");
+
+    let hasEnd =
+        normalizedStudent.includes("ΤΕΛΟΣ_ΠΡΟΓΡΑΜΜΑΤΟΣ") ||
+        normalizedStudent.includes("ΤΕΛΟΣ ΠΡΟΓΡΑΜΜΑΤΟΣ");
+
     if (!(hasStart && hasEnd)) {
-        feedback.push("Λείπει βασική δομή Αλγορίθμου (ΑΡΧΗ / ΤΕΛΟΣ).");
+
+        feedback.push(
+            "Λείπει βασική δομή Αλγορίθμου (ΑΡΧΗ / ΤΕΛΟΣ)."
+        );
+
     }
 
+    currentSolution.requiredKeywords.forEach(keyword => {
 
-    if (forCount >= 2 ){
-        syntaxcheckerforForloop(code, feedback, forCount);
-    }else if( whileCount >= 2 ){
-        syntaxforWhileloop(code, feedback);
-    }else if(untilCount >= 2 ){
-        syntaxforUntilloop(code, feedback);
-    }else if(forCount >= 1 && whileCount >= 1) {
-        syntaxcheckerforForloop(code, feedback, forCount);
-        syntaxforWhileloop(code, feedback);
-    }else if(forCount >= 1 && untilCount >= 1){
-        syntaxcheckerforForloop(code, feedback, forCount);
-        syntaxforUntilloop(code, feedback);
-    }else if(whileCount >= 1 && untilCount >= 1) {
-        syntaxforWhileloop(code, feedback);
-        syntaxforUntilloop(code, feedback);
-    } else {
-        feedback.push("Δεν χρησιμοποιείς εμφωλευμένες δομές επανάληψης.");
-    }
+        let normalizedKeyword = keyword
+            .toUpperCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
 
-    const initialized = [...code.matchAll(/([a-zα-ω_]+)\s*<-\s*-?\d+/gi)]
+        if (!normalizedStudent.includes(normalizedKeyword)) {
+
+            feedback.push(
+                "Λείπει το στοιχείο: " + keyword
+            );
+
+        }
+
+    });
+
+
+    currentSolution.requiredLoops.forEach(loopType => {
+
+        if (loopType === "ΓΙΑ") {
+
+            if (forCount < 2) {
+
+                feedback.push(
+                    "Χρειάζονται δύο εμφωλευμένες επαναλήψεις ΓΙΑ."
+                );
+
+            } else {
+
+                syntaxcheckerforForloop(
+                    code,
+                    feedback,
+                    forCount
+                );
+
+            }
+
+        }
+
+        else if (loopType === "ΟΣΟ") {
+
+            if (whileCount < 2) {
+
+                feedback.push(
+                    "Χρειάζονται δύο εμφωλευμένες επαναλήψεις ΟΣΟ."
+                );
+
+            } else {
+
+                syntaxforWhileloop(
+                    code,
+                    feedback
+                );
+
+            }
+
+        }
+
+        else if (loopType === "ΜΕΧΡΙΣ_ΟΤΟΥ") {
+
+            if (untilCount < 2) {
+
+                feedback.push(
+                    "Χρειάζονται δύο εμφωλευμένες επαναλήψεις ΜΕΧΡΙΣ_ΟΤΟΥ."
+                );
+
+            } else {
+
+                syntaxforUntilloop(
+                    code,
+                    feedback
+                );
+
+            }
+
+        }
+
+    });
+
+
+    const initialized =
+        [...code.matchAll(/([A-ZΑ-Ω_]+)\s*<-\s*-?\d+/gi)]
         .map(m => m[1]);
 
-    const updated = [...code.matchAll(/([a-zα-ω_]+)\s*<-\s*\1\s*\+\s*1/gi)]
+    const updated =
+        [...code.matchAll(/([A-ZΑ-Ω_]+)\s*<-\s*\1\s*\+\s*1/gi)]
         .map(m => m[1]);
 
-   
-
-    let missingUpdates = initialized.filter(v => !updated.includes(v));
+    let missingUpdates =
+        initialized.filter(v => !updated.includes(v));
 
     if (missingUpdates.length > 0) {
-        feedback.push("Κάποιες μεταβλητές αρχικοποιούνται αλλά δεν ενημερώνονται σωστά.");
+
+        feedback.push(
+            "Κάποιες μεταβλητές αρχικοποιούνται αλλά δεν ενημερώνονται σωστά."
+        );
+
     }
-    
-    // --- General success feedback ---
+
+
 
     let hasNegative = feedback.some(msg => {
-        let text = msg.toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .trim();
+
+        let text = msg
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
 
         return (
             text.includes("δεν") ||
-            text.includes("λειπει") || 
-            text.includes("λειπουν")||
-            text.includes("ελλιπης")||
-            text.includes("πρεπει")||
-            text.includes("χρειάζονται")
+            text.includes("λειπει") ||
+            text.includes("λειπουν") ||
+            text.includes("χρειαζονται") ||
+            text.includes("πρεπει") ||
+            text.includes("λαθος") ||
+            text.includes("ελλιπ")
         );
+
     });
 
     if (!hasNegative) {
-        feedback.push("Πολύ καλή δουλειά! Η λύση σου φαίνεται σωστή και ολοκληρωμένη.");
+
+        feedback.push(
+            "Πολύ καλή δουλειά! Η λύση σου φαίνεται σωστή και ολοκληρωμένη."
+        );
+
     }
-
-
-    if (currentProblemType === 0) {
-
-        if (!normalizedStudent.includes("ΟΣΟ")) {
-            feedback.push("Η λύση πρέπει να χρησιμοποιεί επαναλήψεις ΟΣΟ.");
-        }
-
-        let whileCount = (normalizedStudent.match(/ΟΣΟ/g) || []).length;
-
-        if (whileCount < 2) {
-            feedback.push("Χρειάζονται δύο εμφωλευμένες επαναλήψεις ΟΣΟ.");
-        }
-
-        if (!normalizedStudent.includes("ΓΡΑΨΕ")) {
-            feedback.push("Λείπει η εμφάνιση αριθμών (ΓΡΑΨΕ).");
-        }
-    }
-
-
-    else if (currentProblemType === 1) {
-
-        if (!normalizedStudent.includes("ΜΕΧΡΙΣ_ΟΤΟΥ")) {
-            feedback.push("Η λύση πρέπει να χρησιμοποιεί ΜΕΧΡΙΣ_ΟΤΟΥ.");
-        }
-
-        let untilCount = (normalizedStudent.match(/ΜΕΧΡΙΣ_ΟΤΟΥ/g) || []).length;
-
-        if (untilCount < 2) {
-            feedback.push("Χρειάζονται δύο εμφωλευμένες επαναλήψεις ΜΕΧΡΙΣ_ΟΤΟΥ.");
-            }
-        }
-    
 
 
 
