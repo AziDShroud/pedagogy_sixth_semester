@@ -136,6 +136,15 @@ function submitCode() {
     let missingUpdates =
         initialized.filter(v => !updated.includes(v));
 
+
+    if (initialized.length === 0) {
+
+        feedback.push(
+            "Δεν αρχικοποιείται κάποια/ες μεταβλητή/ές."
+        );
+
+    }
+
     if (missingUpdates.length > 0) {
 
         feedback.push(
@@ -187,7 +196,7 @@ function submitCode() {
             .toLowerCase()
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "");
-        if (text.includes("λειπει") || text.includes("λειπουν") || text.includes("χρειαζονται")|| text.includes("πρεπει") ) {
+        if (text.includes("λειπει") || text.includes("λειπουν") || text.includes("χρειαζονται")|| text.includes("πρεπει")|| text.includes("δεν") || text.includes("λαθος") || text.includes("ελλιπ")) {
             div.style.color = "red";
         } else {
             div.style.color = "green";
