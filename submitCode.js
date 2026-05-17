@@ -19,6 +19,8 @@ function submitCode() {
     let currentSolution =
         solutions["case" + window.currentProblemType];
 
+    
+
     let forCount =
         (code.match(/ΓΙΑ/g) || []).length;
 
@@ -44,23 +46,30 @@ function submitCode() {
 
     }
 
-    currentSolution.requiredKeywords.forEach(keyword => {
+    if(normalizedStudent.length > 0){
+        currentSolution.requiredKeywords.forEach(keyword => {
 
-        let normalizedKeyword = keyword
-            .toUpperCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "");
+            let normalizedKeyword = keyword
+                .toUpperCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "");
 
-        if (!normalizedStudent.includes(normalizedKeyword)) {
+            
+            
+            if (!normalizedStudent.includes(normalizedKeyword)) {
 
-            feedback.push(
-                "Λείπει το στοιχείο: " + keyword
-            );
+                feedback.push(
+                    "Λείπει το στοιχείο: " + keyword
+                );
 
-        }
+            }
 
-    });
-
+        });
+    }else{
+        feedback.push(
+            "Ο κώδικας είναι κενός. Παρακαλώ γράψε το πρόγραμμα σου."
+        );
+    }
 
     currentSolution.requiredLoops.forEach(loopType => {
 
@@ -71,6 +80,7 @@ function submitCode() {
                 feedback.push(
                     "Χρειάζονται δύο εμφωλευμένες επαναλήψεις ΓΙΑ."
                 );
+            
 
             } else {
 
@@ -169,7 +179,8 @@ function submitCode() {
             text.includes("χρειαζονται") ||
             text.includes("πρεπει") ||
             text.includes("λαθος") ||
-            text.includes("ελλιπ")
+            text.includes("ελλιπ")||
+            text.includes("κενος")
         );
 
     });
@@ -196,7 +207,7 @@ function submitCode() {
             .toLowerCase()
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "");
-        if (text.includes("λειπει") || text.includes("λειπουν") || text.includes("χρειαζονται")|| text.includes("πρεπει")|| text.includes("δεν") || text.includes("λαθος") || text.includes("ελλιπ")) {
+        if (text.includes("λειπει") ||text.includes("κενος")|| text.includes("λειπουν") || text.includes("χρειαζονται")|| text.includes("πρεπει")|| text.includes("δεν") || text.includes("λαθος") || text.includes("ελλιπ")) {
             div.style.color = "red";
         } else {
             div.style.color = "green";
