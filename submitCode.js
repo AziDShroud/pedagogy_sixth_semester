@@ -38,15 +38,17 @@ function submitCode() {
         normalizedStudent.includes("ΤΕΛΟΣ_ΠΡΟΓΡΑΜΜΑΤΟΣ") ||
         normalizedStudent.includes("ΤΕΛΟΣ ΠΡΟΓΡΑΜΜΑΤΟΣ");
 
-    if (!(hasStart && hasEnd)) {
-
-        feedback.push(
-            "Λείπει βασική δομή Αλγορίθμου (ΑΡΧΗ / ΤΕΛΟΣ)."
-        );
-
-    }
-
+   
     if(normalizedStudent.length > 0){
+
+         if (!(hasStart && hasEnd)) {
+
+            feedback.push(
+                "Λείπει βασική δομή Αλγορίθμου (ΑΡΧΗ / ΤΕΛΟΣ)."
+            );
+
+        }
+
         currentSolution.requiredKeywords.forEach(keyword => {
 
             let normalizedKeyword = keyword
@@ -65,103 +67,108 @@ function submitCode() {
             }
 
         });
+
+
+        currentSolution.requiredLoops.forEach(loopType => {
+
+            if (loopType === "ΓΙΑ") {
+
+                if (forCount < 2) {
+
+                    feedback.push(
+                        "Χρειάζονται δύο εμφωλευμένες επαναλήψεις ΓΙΑ."
+                    );
+                
+
+                } else {
+
+                    syntaxcheckerforForloop(
+                        code,
+                        feedback,
+                        forCount
+                    );
+
+                }
+
+            }
+
+            else if (loopType === "ΟΣΟ") {
+
+                if (whileCount < 2) {
+
+                    feedback.push(
+                        "Χρειάζονται δύο εμφωλευμένες επαναλήψεις ΟΣΟ."
+                    );
+
+                } else {
+
+                    syntaxforWhileloop(
+                        code,
+                        feedback
+                    );
+
+                }
+
+            }
+
+            else if (loopType === "ΜΕΧΡΙΣ_ΟΤΟΥ") {
+
+                if (untilCount < 2) {
+
+                    feedback.push(
+                        "Χρειάζονται δύο εμφωλευμένες επαναλήψεις ΜΕΧΡΙΣ_ΟΤΟΥ."
+                    );
+
+                } else {
+
+                    syntaxforUntilloop(
+                        code,
+                        feedback
+                    );
+
+                }
+
+            }
+
+        });
+
+
+        const initialized =
+            [...code.matchAll(/([A-ZΑ-Ω_]+)\s*<-\s*-?\d+/gi)]
+            .map(m => m[1]);
+
+        const updated =
+            [...code.matchAll(/([A-ZΑ-Ω_]+)\s*<-\s*\1\s*\+\s*1/gi)]
+            .map(m => m[1]);
+
+        let missingUpdates =
+            initialized.filter(v => !updated.includes(v));
+
+
+        if (initialized.length === 0) {
+
+            feedback.push(
+                "Δεν αρχικοποιείται κάποια/ες μεταβλητή/ές."
+            );
+
+        }
+
+        if (missingUpdates.length > 0) {
+
+            feedback.push(
+                "Κάποιες μεταβλητές αρχικοποιούνται αλλά δεν ενημερώνονται σωστά."
+            );
+
+        }
+
+
     }else{
         feedback.push(
             "Ο κώδικας είναι κενός. Παρακαλώ γράψε το πρόγραμμα σου."
         );
     }
 
-    currentSolution.requiredLoops.forEach(loopType => {
-
-        if (loopType === "ΓΙΑ") {
-
-            if (forCount < 2) {
-
-                feedback.push(
-                    "Χρειάζονται δύο εμφωλευμένες επαναλήψεις ΓΙΑ."
-                );
-            
-
-            } else {
-
-                syntaxcheckerforForloop(
-                    code,
-                    feedback,
-                    forCount
-                );
-
-            }
-
-        }
-
-        else if (loopType === "ΟΣΟ") {
-
-            if (whileCount < 2) {
-
-                feedback.push(
-                    "Χρειάζονται δύο εμφωλευμένες επαναλήψεις ΟΣΟ."
-                );
-
-            } else {
-
-                syntaxforWhileloop(
-                    code,
-                    feedback
-                );
-
-            }
-
-        }
-
-        else if (loopType === "ΜΕΧΡΙΣ_ΟΤΟΥ") {
-
-            if (untilCount < 2) {
-
-                feedback.push(
-                    "Χρειάζονται δύο εμφωλευμένες επαναλήψεις ΜΕΧΡΙΣ_ΟΤΟΥ."
-                );
-
-            } else {
-
-                syntaxforUntilloop(
-                    code,
-                    feedback
-                );
-
-            }
-
-        }
-
-    });
-
-
-    const initialized =
-        [...code.matchAll(/([A-ZΑ-Ω_]+)\s*<-\s*-?\d+/gi)]
-        .map(m => m[1]);
-
-    const updated =
-        [...code.matchAll(/([A-ZΑ-Ω_]+)\s*<-\s*\1\s*\+\s*1/gi)]
-        .map(m => m[1]);
-
-    let missingUpdates =
-        initialized.filter(v => !updated.includes(v));
-
-
-    if (initialized.length === 0) {
-
-        feedback.push(
-            "Δεν αρχικοποιείται κάποια/ες μεταβλητή/ές."
-        );
-
-    }
-
-    if (missingUpdates.length > 0) {
-
-        feedback.push(
-            "Κάποιες μεταβλητές αρχικοποιούνται αλλά δεν ενημερώνονται σωστά."
-        );
-
-    }
+    
 
 
 
