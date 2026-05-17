@@ -6,7 +6,7 @@ function submitCode() {
         .replace(/[\u0300-\u036f]/g, "")
         .trim();
 
-    let normalizedStudent = code
+    window.normalizedStudent = code
         .toUpperCase()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
@@ -137,8 +137,10 @@ function submitCode() {
             [...code.matchAll(/([A-ZΑ-Ω_]+)\s*<-\s*-?\d+/gi)]
             .map(m => m[1]);
 
-        const updated =
-            [...code.matchAll(/([A-ZΑ-Ω_]+)\s*<-\s*\1\s*\+\s*1/gi)]
+       const updated =
+            [...code.matchAll(
+                /([A-ZΑ-Ω_]+)\s*<-\s*\1\s*[\+\-\*\/]\s*[A-ZΑ-Ω_0-9]+/gi
+            )]
             .map(m => m[1]);
 
         let missingUpdates =
@@ -227,12 +229,36 @@ function submitCode() {
 
 function syntaxcheckerforForloop(code, feedback, forCount) {
 
-    let forLines = code.match(/ΓΙΑ[^\n\r]*/gi) || [];
+    let forLines =
+        code.match(/ΓΙΑ[^\n\r]*/gi) || [];
 
     let closeCount =
         (code.match(/ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ/gi) || []).length;
 
     let wrongLines = 0;
+
+
+
+   let outerLoopCorrect =
+    normalizedStudent.includes(
+        "ΑΠΟ " + currentValues.X
+    ) &&
+    normalizedStudent.includes(
+        "ΜΕΧΡΙ " + currentValues.Z
+    );
+
+    let innerLoopCorrect =
+        normalizedStudent.includes(
+            "ΑΠΟ " + currentValues.F
+        ) &&
+        normalizedStudent.includes(
+            "ΜΕΧΡΙ " + currentValues.G
+        );
+
+   let correctStep =
+            new RegExp(
+                "ΜΕ_ΒΗΜΑ\\s+" + currentValues.Y
+            ).test(normalizedStudent);
 
     forLines.forEach(line => {
 
@@ -244,9 +270,6 @@ function syntaxcheckerforForloop(code, feedback, forCount) {
 
         let parts = cleanLine.split(/\s+/);
 
-        // Example:
-        // ΓΙΑ Ι ΑΠΟ 1 ΜΕΧΡΙ 5
-
         let hasVariable =
             parts.length > 1 &&
             parts[1] !== "ΑΠΟ";
@@ -257,8 +280,11 @@ function syntaxcheckerforForloop(code, feedback, forCount) {
         let mexriIndex =
             parts.indexOf("ΜΕΧΡΙ");
 
-        let hasAPO = apoIndex !== -1;
-        let hasMEXRI = mexriIndex !== -1;
+        let hasAPO =
+            apoIndex !== -1;
+
+        let hasMEXRI =
+            mexriIndex !== -1;
 
         let hasStartNumber =
             hasAPO &&
@@ -271,31 +297,65 @@ function syntaxcheckerforForloop(code, feedback, forCount) {
             !isNaN(parseInt(parts[mexriIndex + 1]));
 
         let lineHasError = false;
+     
+        if(!outerLoopCorrect){
+            lineHasError=true;
+        }
+
+        if(!innerLoopCorrect){
+            lineHasError=true;
+        }
 
         if (!hasVariable) {
-            feedback.push("Σε μία δομή ΓΙΑ λείπει μεταβλητή μετά το ΓΙΑ.");
+
+            feedback.push(
+                "Σε μία δομή ΓΙΑ λείπει μεταβλητή μετά το ΓΙΑ."
+            );
+
             lineHasError = true;
+
         }
 
         if (!hasAPO) {
-            feedback.push("Σε μία δομή ΓΙΑ λείπει το ΑΠΟ.");
+
+            feedback.push(
+                "Σε μία δομή ΓΙΑ λείπει το ΑΠΟ."
+            );
+
             lineHasError = true;
+
         }
 
         if (!hasStartNumber) {
-            feedback.push("Σε μία δομή ΓΙΑ λείπει αριθμός μετά το ΑΠΟ.");
+
+            feedback.push(
+                "Σε μία δομή ΓΙΑ λείπει αριθμός μετά το ΑΠΟ."
+            );
+
             lineHasError = true;
+
         }
 
         if (!hasMEXRI) {
-            feedback.push("Σε μία δομή ΓΙΑ λείπει το ΜΕΧΡΙ.");
+
+            feedback.push(
+                "Σε μία δομή ΓΙΑ λείπει το ΜΕΧΡΙ."
+            );
+
             lineHasError = true;
+
         }
 
         if (!hasEndNumber) {
-            feedback.push("Σε μία δομή ΓΙΑ λείπει αριθμός μετά το ΜΕΧΡΙ.");
+
+            feedback.push(
+                "Σε μία δομή ΓΙΑ λείπει αριθμός μετά το ΜΕΧΡΙ."
+            );
+
             lineHasError = true;
+
         }
+
 
         if (lineHasError) {
             wrongLines++;
@@ -303,14 +363,57 @@ function syntaxcheckerforForloop(code, feedback, forCount) {
 
     });
 
-    if (closeCount < forCount) {
-        wrongLines++;
-        feedback.push("Λείπουν κάποια ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ.");
+    if (wrongLines === 1) {
+
+        if (!outerLoopCorrect || !innerLoopCorrect) {
+
+            feedback.push(
+                "Τα όρια μίας επανάληψης δεν είναι σωστά."
+            );
+
+        }
+
+        if (!correctStep) {
+            feedback.push(
+                "Το βήμα της επανάληψης δεν είναι σωστό."
+            );
+              
+        }
+
     }
 
-    if (wrongLines === 0) {
-        feedback.push("Όλες οι δομές ΓΙΑ έχουν σωστή μορφή.");
+    else if (wrongLines > 1) {
+
+        if (!outerLoopCorrect || !innerLoopCorrect) {
+
+            feedback.push(
+                "Τα όρια πολλών επαναλήψεων δεν είναι σωστά."
+            );
+
+        }
+
     }
+
+    if (closeCount < forCount) {
+
+        feedback.push(
+            "Λείπουν κάποια ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ."
+        );
+
+    }
+
+
+    if (
+        wrongLines === 0 &&
+        closeCount >= forCount
+    ) {
+
+        feedback.push(
+            "Όλες οι δομές ΓΙΑ έχουν σωστή μορφή."
+        );
+
+    }
+
 }
     
 
@@ -345,6 +448,7 @@ function syntaxforWhileloop(code, feedback){
     }
 
    }
+
 
 
 function syntaxforUntilloop(code, feedback){

@@ -48,7 +48,7 @@ function newProblem() {
         case 0:
             window.currentProblemType = 0;
             window.currentValues = {A, B, C, D};
-            problemText = `Να αναπτύξετε αλγόριθμο που:
+            problemText = `Να αναπτύξετε προγραμμα που:
                 Για κάθε αριθμό από το ${A} έως το ${B}
                 εμφανίζει όλους τους αριθμούς από το ${C} έως το ${D}.
 
@@ -65,7 +65,7 @@ function newProblem() {
         case 1:
             window.currentProblemType = 1;
             window.currentValues = {N, M};
-            problemText = `Να αναπτύξετε αλγόριθμο που:
+            problemText = `Να αναπτύξετε προγραμμα που:
                 Διαβάζει ${N} ομάδες αριθμών,
                 όπου κάθε ομάδα περιέχει ${M} αριθμούς,
                 και υπολογίζει το συνολικό άθροισμα.
@@ -82,7 +82,7 @@ function newProblem() {
         case 2:
             window.currentProblemType = 2;
             window.currentValues = {X, Z, F, G, Y};
-            problemText = `Να αναπτύξετε αλγόριθμο που:
+            problemText = `Να αναπτύξετε προγραμμα που:
                 Για κάθε αριθμό από το από το ${X} εώς το ${Z}
                 υπολογίζει και εμφανίζει το αθροισμα των αριθμών από το ${F} εώς το ${G} κατά ${Y}.`;
 
