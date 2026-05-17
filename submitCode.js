@@ -59,7 +59,7 @@ function submitCode() {
             if (!normalizedStudent.includes(normalizedKeyword)) {
 
                 feedback.push(
-                    "Λείπει το στοιχείο: " + keyword
+                    "Λείπει το: " + keyword
                 );
 
             }
