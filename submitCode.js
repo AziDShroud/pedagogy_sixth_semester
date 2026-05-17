@@ -1,12 +1,12 @@
 function submitCode() {
 
-    const code = document.getElementById("codeArea").value
+     window.code = document.getElementById("codeArea").value
         .toUpperCase()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .trim();
 
-    window.normalizedStudent = code
+    window.normalizedStudent = window.code
         .toUpperCase()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
@@ -22,13 +22,13 @@ function submitCode() {
     
 
     let forCount =
-        (code.match(/ΓΙΑ/g) || []).length;
-
+        (window.code.match(/ΓΙΑ/g) || []).length;
     let whileCount =
-        (code.match(/ΟΣΟ/g) || []).length;
-
+        (window.code.match(/ΟΣΟ/g) || []).length;
     let untilCount =
-        (code.match(/ΜΕΧΡΙΣ_ΟΤΟΥ/g) || []).length;
+        (window.code.match(/ΜΕΧΡΙΣ_ΟΤΟΥ/g) || []).length;
+
+   
 
 
     let hasStart =
@@ -45,6 +45,41 @@ function submitCode() {
 
             feedback.push(
                 "Λείπει βασική δομή Αλγορίθμου (ΑΡΧΗ / ΤΕΛΟΣ)."
+            );
+
+        }
+
+        const initialized = [...code.matchAll(
+            /([A-ZΑ-Ω_]+)\s*<-\s*-?\d+/gi
+        )].map(m => m[1]);
+
+        const assigned = [...code.matchAll(
+            /([A-ZΑ-Ω_]+)\s*<-\s*/gi
+        )].map(m => m[1]);
+
+        const updated =
+                [...code.matchAll(
+                    /([A-ZΑ-Ω_]+)\s*<-\s*\1\s*[\+\-\*\/]\s*[A-ZΑ-Ω_0-9]+/gi
+                )]
+                .map(m => m[1]);
+
+        let missingUpdates =
+            initialized.filter(v => !updated.includes(v));
+        const usedBeforeInit = assigned.filter(v => !initialized.includes(v));
+
+
+        
+
+        if (usedBeforeInit.length > 0) {
+
+            feedback.push(
+                "Κάποιες μεταβλητές χρησιμοποιούνται πριν από την αρχικοποίησή τους."
+            );
+
+        } else if (missingUpdates.length > 0) {
+
+            feedback.push(
+                "Κάποιες μεταβλητές δεν ενημερώνονται μετά την αρχικοποίησή τους."
             );
 
         }
@@ -131,37 +166,7 @@ function submitCode() {
             }
 
         });
-
-
-        const initialized =
-            [...code.matchAll(/([A-ZΑ-Ω_]+)\s*<-\s*-?\d+/gi)]
-            .map(m => m[1]);
-
-       const updated =
-            [...code.matchAll(
-                /([A-ZΑ-Ω_]+)\s*<-\s*\1\s*[\+\-\*\/]\s*[A-ZΑ-Ω_0-9]+/gi
-            )]
-            .map(m => m[1]);
-
-        let missingUpdates =
-            initialized.filter(v => !updated.includes(v));
-
-
-        if (initialized.length === 0) {
-
-            feedback.push(
-                "Δεν αρχικοποιείται κάποια/ες μεταβλητή/ές."
-            );
-
-        }
-
-        if (missingUpdates.length > 0) {
-
-            feedback.push(
-                "Κάποιες μεταβλητές αρχικοποιούνται αλλά δεν ενημερώνονται σωστά."
-            );
-
-        }
+        
 
 
     }else{
@@ -188,7 +193,7 @@ function submitCode() {
             text.includes("χρειαζονται") ||
             text.includes("πρεπει") ||
             text.includes("λαθος") ||
-            text.includes("ελλιπ")||
+            text.includes("πριν")||
             text.includes("κενος")
         );
 
@@ -216,7 +221,7 @@ function submitCode() {
             .toLowerCase()
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "");
-        if (text.includes("λειπει") ||text.includes("κενος")|| text.includes("λειπουν") || text.includes("χρειαζονται")|| text.includes("πρεπει")|| text.includes("δεν") || text.includes("λαθος") || text.includes("ελλιπ")) {
+        if (text.includes("λειπει") ||text.includes("κενος")|| text.includes("λειπουν") || text.includes("χρειαζονται")|| text.includes("πρεπει")|| text.includes("δεν") || text.includes("λαθος") || text.includes("ελλιπ")|| text.includes("πριν")) {
             div.style.color = "red";
         } else {
             div.style.color = "green";
@@ -236,7 +241,6 @@ function syntaxcheckerforForloop(code, feedback, forCount) {
         (code.match(/ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ/gi) || []).length;
 
     let wrongLines = 0;
-
 
 
    let outerLoopCorrect =
@@ -401,8 +405,6 @@ function syntaxcheckerforForloop(code, feedback, forCount) {
         );
 
     }
-
-
     if (
         wrongLines === 0 &&
         closeCount >= forCount
@@ -433,6 +435,14 @@ function syntaxforWhileloop(code, feedback){
         }
 
     whileLines.forEach(line => {
+        let cleanLine = line
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toUpperCase()
+            .trim();
+
+        
+
         let hasCondition =
             /ΟΣΟ\s+.+(<=|>=|<>|=|<|>).+/i.test(line);
 
@@ -463,6 +473,11 @@ function syntaxforUntilloop(code, feedback){
     }
 
     untilLines.forEach(line => {
+        let cleanLine = line
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toUpperCase()
+            .trim();
         let hasCondition =
             /ΜΕΧΡΙΣ_ΟΤΟΥ\s+.+(<=|>=|<>|=|<|>).+/i.test(line);
         if (!hasCondition) {
