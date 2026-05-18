@@ -65,6 +65,7 @@ function submitCode() {
 
         let missingUpdates =
             initialized.filter(v => !updated.includes(v));
+            
         const usedBeforeInit = assigned.filter(v => !initialized.includes(v));
 
 
@@ -427,12 +428,43 @@ function syntaxforWhileloop(code, feedback){
     let untilCount = (code.match(/ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ/g) || []).length;
     let noCondition = 0;
 
-    if (startCount < untilCount) {
-        feedback.push("Λείπουν κάποιες ΟΣΟ.");
-    }else 
-        if(startCount> untilCount){
-            feedback.push("Λειπουν καποια/ο ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ")
-        }
+    let outerBoundaryCorrect =
+    normalizedStudent.includes(
+        "<= " + currentValues.B
+    ) ||
+    normalizedStudent.includes(
+        "<" + currentValues.B
+    );
+
+    let innerBoundaryCorrect =
+        normalizedStudent.includes(
+            "<= " + currentValues.D
+        ) ||
+        normalizedStudent.includes(
+            "<" + currentValues.D
+        );
+
+    if (!outerBoundaryCorrect) {
+
+        feedback.push(
+            "Το άνω όριο της εξωτερικής ΟΣΟ δεν είναι σωστό."
+        );
+
+    }
+
+    if (!innerBoundaryCorrect) {
+
+        feedback.push(
+            "Το άνω όριο της εσωτερικής ΟΣΟ δεν είναι σωστό."
+        );
+
+    }
+        if (startCount < untilCount) {
+            feedback.push("Λείπουν κάποιες ΟΣΟ.");
+        }else 
+            if(startCount> untilCount){
+                feedback.push("Λειπουν καποια/ο ΤΕΛΟΣ_ΕΠΑΝΑΛΗΨΗΣ")
+            }
 
     whileLines.forEach(line => {
         let cleanLine = line
@@ -468,9 +500,34 @@ function syntaxforUntilloop(code, feedback){
     let untilCount = (code.match(/ΜΕΧΡΙΣ_ΟΤΟΥ/g) || []).length;
     let noCondition = 0;
 
-    if (startCount < untilCount) {
-        feedback.push("Λείπουν κάποιες ΑΡΧΗ_ΕΠΑΝΑΛΗΨΗΣ.");
+    let outerBoundaryCorrect =
+    new RegExp(
+        ">\\s*" + currentValues.N
+    ).test(normalizedStudent);
+
+    let innerBoundaryCorrect =
+        new RegExp(
+            ">\\s*" + currentValues.M
+        ).test(normalizedStudent);
+
+    if (!outerBoundaryCorrect) {
+
+        feedback.push(
+            "Το όριο της εξωτερικής ΜΕΧΡΙΣ_ΟΤΟΥ δεν είναι σωστό."
+        );
+
     }
+
+    if (!innerBoundaryCorrect) {
+
+        feedback.push(
+            "Το όριο της εσωτερικής ΜΕΧΡΙΣ_ΟΤΟΥ δεν είναι σωστό."
+        );
+
+    }
+        if (startCount < untilCount) {
+            feedback.push("Λείπουν κάποιες ΑΡΧΗ_ΕΠΑΝΑΛΗΨΗΣ.");
+        }
 
     untilLines.forEach(line => {
         let cleanLine = line
