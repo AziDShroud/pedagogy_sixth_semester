@@ -526,7 +526,7 @@ function syntaxforUntilloop(code, feedback){
 
     }
         if (startCount < untilCount) {
-            feedback.push("Λείπουν κάποιες ΑΡΧΗ_ΕΠΑΝΑΛΗΨΗΣ.");
+            feedback.push("Λείπουν κάποια/ες ΑΡΧΗ_ΕΠΑΝΑΛΗΨΗΣ.");
         }
 
     untilLines.forEach(line => {
